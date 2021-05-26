@@ -1,20 +1,19 @@
-from ._gunicorn_http_runner import GunicornHttpRunner
+from ._gunicorn_http_runner import gunicorn_http_runner
 from ._http_runner import (
-    HttpApp, HttpRunner, HttpRequest, HttpResponse, HttpHandler, HttpAppFactory, HttpWorkerContext,
-    create_http_app,
+    HttpApp, HttpRequest, HttpResponse, HttpHandler, HttpAppFactory, create_http_app,
 )
-from ._simple_http_runner import SimpleHttpRunner
+from ._simple_http_runner import simple_http_runner
+from ._utils import wait_for_interrupt
 
 
 __all__ = [
     'HttpApp',
-    'HttpRunner',
     'HttpRequest',
     'HttpResponse',
     'HttpHandler',
     'HttpAppFactory',
-    'HttpWorkerContext',
-    'GunicornHttpRunner',
-    'SimpleHttpRunner',
+    'gunicorn_http_runner',
+    'simple_http_runner',
     'create_http_app',
+    'wait_for_interrupt',
 ]

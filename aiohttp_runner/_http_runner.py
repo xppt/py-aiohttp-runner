@@ -1,4 +1,3 @@
-import abc
 from typing import Callable, AsyncContextManager, Awaitable, Tuple, Iterable, NamedTuple
 
 import aiohttp.web
@@ -16,7 +15,7 @@ HttpRoute = Tuple[
     HttpHandler,
 ]
 
-HttpAppFactory = Callable[['HttpWorkerContext'], AsyncContextManager[HttpApp]]
+HttpAppFactory = Callable[[], AsyncContextManager[HttpApp]]
 
 
 def create_http_app(routes: Iterable[HttpRoute], **options) -> HttpApp:
@@ -26,13 +25,3 @@ def create_http_app(routes: Iterable[HttpRoute], **options) -> HttpApp:
         aiohttp_app.router.add_route(method, path, handler)
 
     return aiohttp_app
-
-
-class HttpRunner(abc.ABC):
-    @abc.abstractmethod
-    def run(self, http_app_factory: HttpAppFactory):
-        pass
-
-
-class HttpWorkerContext(NamedTuple):
-    worker_id: int

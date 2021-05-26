@@ -1,31 +1,27 @@
-import asyncio
-import os
+from typing import Optional, AsyncIterator
 
 import aiohttp.web
+from async_generator import asynccontextmanager
 
-from aiohttp_runner._utils import init_aiohttp_app
-from aiohttp_runner._http_runner import (
-    HttpRunner, HttpAppFactory, HttpWorkerContext,
-)
-
-
-class SimpleHttpRunner(HttpRunner):
-    def __init__(self, bind: str):
-        self._bind = bind
-
-    def run(self, http_app_factory: HttpAppFactory):
-        worker_context = HttpWorkerContext(worker_id=0)
-        coro = init_aiohttp_app(lambda: http_app_factory(worker_context))
-        http_app = asyncio.get_event_loop().run_until_complete(coro)
-
-        host, port = self._bind.split(':', 1)
-
-        if os.name == 'nt':
-            # workaround for graceful stop on Windows
-            _wakeup_nt()
-
-        aiohttp.web.run_app(http_app, host=host, port=int(port))
+from aiohttp_runner._utils import parse_bind_addr, KwArgs
+from aiohttp_runner._http_runner import HttpAppFactory
 
 
-def _wakeup_nt():
-    asyncio.get_event_loop().call_later(1, _wakeup_nt)
+@asynccontextmanager
+async def simple_http_runner(
+        http_app_factory: HttpAppFactory, bind: str,
+        server_args: Optional[KwArgs] = None,
+) -> AsyncIterator[None]:
+
+    host, port = parse_bind_addr(bind)
+
+    async with http_app_factory() as http_app:
+        aiohttp_app_runner = aiohttp.web.AppRunner(http_app, **(server_args or {}))
+        await aiohttp_app_runner.setup()
+
+        await aiohttp.web.TCPSite(aiohttp_app_runner, host=host, port=port).start()
+
+        try:
+            yield
+        finally:
+            await aiohttp_app_runner.cleanup()
