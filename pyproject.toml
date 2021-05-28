@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiohttp-runner"
-version = "0.4.0"
+version = "0.5.0"
 description = "Wraps aiohttp or gunicorn server for aiohttp application."
 authors = ["xppt <21246102+xppt@users.noreply.github.com>"]
 readme = "README.md"
