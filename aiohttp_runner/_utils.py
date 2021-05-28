@@ -4,7 +4,7 @@ import signal
 import sys
 import traceback
 from contextlib import suppress
-from typing import Callable, AsyncContextManager, Tuple, Dict, Any
+from typing import Callable, AsyncContextManager, Tuple, Dict, Any, AsyncIterator
 
 from async_exit_stack import AsyncExitStack
 from async_generator import asynccontextmanager
@@ -80,7 +80,7 @@ def error_handler(exc: BaseException) -> None:
 
 
 @asynccontextmanager
-async def run_task_in_context(coro, on_error: OnError = error_handler):
+async def run_task_in_context(coro, on_error: OnError) -> AsyncIterator[None]:
     def _callback(f: asyncio.Future) -> None:
         if not f.cancelled():
             e = f.exception()
